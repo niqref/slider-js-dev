@@ -55,10 +55,12 @@ export default class Slider {
     }
 
     init() {
-      this.#setButtonsVisibilityClass();
-      this.#updateButtonsState();
-      this.#setOnButtonsClick();
-      this.#setSlidesSwipeHandlers();
+      if (this.#slides.length > 1) {
+        this.#setButtonsVisibilityClass();
+        this.#updateButtonsState();
+        this.#setOnButtonsClick();
+        this.#setSlidesSwipeHandlers();
+      }
     }
 
     #setSlidesSwipeHandlers() {
