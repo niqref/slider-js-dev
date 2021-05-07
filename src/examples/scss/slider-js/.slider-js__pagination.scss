@@ -1,0 +1,20 @@
+.slider-js__pagination {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    justify-content: center;
+
+    margin: 0 auto;
+}
+
+.slider-js__pagination-item {
+    width: 20px;
+    height: 20px;
+
+    background-color: white;
+
+    border-radius: 50%;
+}

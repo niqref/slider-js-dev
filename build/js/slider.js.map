@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./slider.js"],"names":["slider","console","log"],"mappings":";;;;;;;;;;;;;AAAA,IAAMA,MAAM,GAAG,SAATA,MAAS;AAAA,SAAMC,OAAO,CAACC,GAAR,CAAY,eAAZ,CAAN;AAAA,CAAf;;AAEA,iEAAeF,MAAf,E","file":"js/slider.js","sourcesContent":["const slider = () => console.log('module slider');\n\nexport default slider;\n"],"sourceRoot":""}
