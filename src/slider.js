@@ -20,6 +20,21 @@ export default class Slider {
 
     #shownButton = 'slider-js__button_shown';
 
+    #slidesWithoutTransition = 'slider-js__slides_no-transition';
+
+    #slidesGrabbing = 'slider-js__slides_grabbing';
+
+    #SlidesSwipeState = {
+      wasStarted: false,
+      isDetecting: false,
+      startX: null,
+      startY: null,
+      moveX: null,
+      moveY: null,
+      shiftX: null,
+      shiftY: null,
+    }
+
     constructor({
       slidesContainer,
       buttonPrev,
@@ -47,20 +62,78 @@ export default class Slider {
     }
 
     #setSlidesSwipeHandlers() {
+      this.#slidesContainer.addEventListener('touchstart', this.#onSlidesSwipeStart);
+      this.#slidesContainer.addEventListener('touchmove', this.#onSlidesSwipeMove);
+      this.#slidesContainer.addEventListener('touchend', this.#onSlidesSwipeEnd);
 
-      this.#slidesContainer.addEventListener('touchstart');
+      this.#slidesContainer.addEventListener('mousedown', this.#onSlidesSwipeStart);
+      this.#slidesContainer.addEventListener('mousemove', this.#onSlidesSwipeMove);
+      this.#slidesContainer.addEventListener('mouseup', this.#onSlidesSwipeEnd);
     }
 
-    #onSlidesStartMove() {
+    #onSlidesSwipeStart = (startEvt) => {
+      if (this.#SlidesSwipeState.wasStarted) {
+        return;
+      }
 
+      if (startEvt.clientX) {
+        startEvt.preventDefault();
+      }
+
+      this.#SlidesSwipeState.isDetecting = true;
+      this.#setSwipeCoords(startEvt, 'startX', 'startY');
+      this.#slidesContainer.classList.add(this.#slidesGrabbing);
     }
 
-    #onSlidesMove() {
+    #onSlidesSwipeMove = (moveEvt) => {
+      if (!this.#SlidesSwipeState.wasStarted && !this.#SlidesSwipeState.isDetecting) {
+        return;
+      }
 
+      this.#setSwipeCoords(moveEvt, 'moveX', 'moveY');
+
+      if (this.#SlidesSwipeState.isDetecting) {
+        if (this.#isNeedBlockHorizontalScroll()) {
+          // moveEvt.preventDefault();
+          this.#SlidesSwipeState.wasStarted = true;
+        }
+
+        this.#SlidesSwipeState.isDetecting = false;
+      }
+
+      if (this.#SlidesSwipeState.wasStarted) {
+        moveEvt.preventDefault();
+
+        if (!this.#slidesContainer.classList.contains(this.#slidesWithoutTransition)) {
+          this.#slidesContainer.classList.add(this.#slidesWithoutTransition);
+        }
+
+        this.#SlidesSwipeState.shiftX = ((this.#SlidesSwipeState.moveX
+          - this.#SlidesSwipeState.startX) * 100) / this.#slidesContainer.offsetWidth;
+
+        Slider.setElementShift(this.#slidesContainer, this.#SlidesSwipeState.shiftX);
+      }
     }
 
-    #onSlidesEndMove() {
+    #onSlidesSwipeEnd = (endEvt) => {
+      this.#slidesContainer.classList.remove(this.#slidesGrabbing);
 
+      if (!this.#SlidesSwipeState.wasStarted && this.#SlidesSwipeState.isDetecting) {
+        return;
+      }
+
+      endEvt.preventDefault();
+      this.#SlidesSwipeState.wasStarted = false;
+    }
+
+    #setSwipeCoords(evt, x, y) {
+      this.#SlidesSwipeState[x] = evt.clientX || evt.touches[0].clientX;
+      this.#SlidesSwipeState[y] = evt.clientY || evt.touches[0].clientY;
+    }
+
+    #isNeedBlockHorizontalScroll() {
+      return Math.abs(this.#SlidesSwipeState.startX - this.#SlidesSwipeState.moveX)
+      >= Math.abs(this.#SlidesSwipeState.startY - this.#SlidesSwipeState.moveY);
     }
 
     #setButtonsVisibilityClass() {
