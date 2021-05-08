@@ -113,7 +113,7 @@ export default class Slider {
         }
 
         this.#SlidesSwipeState.shiftX = ((this.#SlidesSwipeState.moveX
-          - this.#SlidesSwipeState.startX) * 100) / this.#slidesContainer.offsetWidth;
+          - this.#SlidesSwipeState.startX) * 100) / this.#slidesContainer.offsetWidth + this.#currentSliderShift;
 
         Slider.setElementShift(this.#slidesContainer, this.#SlidesSwipeState.shiftX);
       }
@@ -121,16 +121,26 @@ export default class Slider {
 
     #onSlidesSwipeEnd = (endEvt) => {
       this.#slidesContainer.classList.remove(this.#SliderClass.slidesGrabbing);
+      this.#slidesContainer.classList.remove(this.#SliderClass.slidesWithoutTransition);
 
       if (!this.#SlidesSwipeState.wasStarted && this.#SlidesSwipeState.isDetecting) {
         return;
       }
 
+      if (this.#SlidesSwipeState.isTouchEvent) {
+        this.#slidesContainer.addEventListener('click', (evt) => evt.preventDefault(), { once: true });
+      }
+
       endEvt.preventDefault();
       this.#SlidesSwipeState.wasStarted = false;
 
-      if (this.#SlidesSwipeState.isTouchEvent) {
-        this.#slidesContainer.addEventListener('click', (evt) => evt.preventDefault(), { once: true });
+      const nextItemIndex = this.#currentSliderShift > this.#SlidesSwipeState.shiftX ? this.#currentSlideIndex + 1 : this.#currentSlideIndex - 1;
+
+      this.#updateSlider(nextItemIndex);
+
+      if (this.#SlidesSwipeState.shiftX >= 0
+        || this.#currentSlideIndex === this.#slides.length - 1) {
+        this.#changeSlides();
       }
     }
 
@@ -155,26 +165,29 @@ export default class Slider {
 
     #onButtonsClick = ({ currentTarget }) => {
       const isNext = currentTarget === this.#button.next;
-      this.#updateSlider(isNext);
+      const nextItemIndex = isNext ? this.#currentSlideIndex + 1 : this.#currentSlideIndex - 1;
+      this.#updateSlider(nextItemIndex);
     }
 
-    #updateSlider(isNext) {
-      if (this.#isSliderUpdateBlocked(isNext)) {
+    #updateSlider(nextItemIndex) {
+      if (this.#isSliderUpdateBlocked(nextItemIndex)) {
         return;
       }
 
-      this.#changeSlides(isNext);
+      this.#currentSlideIndex = nextItemIndex;
+      this.#currentSliderShift = this.#currentSlideIndex * -this.#sliderShift;
+
+      this.#changeSlides();
       this.#updateButtonsState();
     }
 
-    #isSliderUpdateBlocked(isNext) {
-      return (!isNext && this.#currentSlideIndex === 0)
-      || (isNext && this.#currentSlideIndex === this.#slides.length - 1);
+    #isSliderUpdateBlocked(nextItemIndex) {
+      return ((nextItemIndex < 0 && this.#currentSlideIndex === 0)
+        || (nextItemIndex >= this.#slides.length
+          && this.#currentSlideIndex === this.#slides.length - 1));
     }
 
-    #changeSlides(isNext) {
-      this.#currentSlideIndex += isNext ? 1 : -1;
-      this.#currentSliderShift = this.#currentSlideIndex * -this.#sliderShift;
+    #changeSlides() {
       Slider.setElementShift(this.#slidesContainer, this.#currentSliderShift);
     }
 

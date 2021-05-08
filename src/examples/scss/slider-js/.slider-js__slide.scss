@@ -1,17 +1,17 @@
 .slider-js__slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
     flex-shrink: 0;
 
-	width: 100%;
+	  width: 100%;
     height: 400px;
     box-sizing: border-box;
 
+    font-size: 32px;
+
     background-color: grey;
+    color: white;
 
     border: 10px solid black;
-
-    a {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
 }
