@@ -16,13 +16,12 @@ export default class Slider {
 
     #currentSlideIndex = 0;
 
-    #disabledButton = 'slider-js__button_disabled';
-
-    #shownButton = 'slider-js__button_shown';
-
-    #slidesWithoutTransition = 'slider-js__slides_no-transition';
-
-    #slidesGrabbing = 'slider-js__slides_grabbing';
+    #SliderClass = {
+      disabledButton: 'slider-js__button_disabled',
+      shownButton: 'slider-js__button_shown',
+      slidesWithoutTransition: 'slider-js__slides_no-transition',
+      slidesGrabbing: 'slider-js__slides_grabbing',
+    };
 
     #SlidesSwipeState = {
       wasStarted: false,
@@ -33,6 +32,7 @@ export default class Slider {
       moveY: null,
       shiftX: null,
       shiftY: null,
+      isTouchEvent: null,
     }
 
     constructor({
@@ -78,13 +78,15 @@ export default class Slider {
         return;
       }
 
-      if (startEvt.clientX) {
+      this.#SlidesSwipeState.isTouchEvent = !!startEvt.clientX;
+
+      if (this.#SlidesSwipeState.isTouchEvent) {
         startEvt.preventDefault();
       }
 
       this.#SlidesSwipeState.isDetecting = true;
       this.#setSwipeCoords(startEvt, 'startX', 'startY');
-      this.#slidesContainer.classList.add(this.#slidesGrabbing);
+      this.#slidesContainer.classList.add(this.#SliderClass.slidesGrabbing);
     }
 
     #onSlidesSwipeMove = (moveEvt) => {
@@ -106,8 +108,8 @@ export default class Slider {
       if (this.#SlidesSwipeState.wasStarted) {
         moveEvt.preventDefault();
 
-        if (!this.#slidesContainer.classList.contains(this.#slidesWithoutTransition)) {
-          this.#slidesContainer.classList.add(this.#slidesWithoutTransition);
+        if (!this.#slidesContainer.classList.contains(this.#SliderClass.slidesWithoutTransition)) {
+          this.#slidesContainer.classList.add(this.#SliderClass.slidesWithoutTransition);
         }
 
         this.#SlidesSwipeState.shiftX = ((this.#SlidesSwipeState.moveX
@@ -118,7 +120,7 @@ export default class Slider {
     }
 
     #onSlidesSwipeEnd = (endEvt) => {
-      this.#slidesContainer.classList.remove(this.#slidesGrabbing);
+      this.#slidesContainer.classList.remove(this.#SliderClass.slidesGrabbing);
 
       if (!this.#SlidesSwipeState.wasStarted && this.#SlidesSwipeState.isDetecting) {
         return;
@@ -126,6 +128,10 @@ export default class Slider {
 
       endEvt.preventDefault();
       this.#SlidesSwipeState.wasStarted = false;
+
+      if (this.#SlidesSwipeState.isTouchEvent) {
+        this.#slidesContainer.addEventListener('click', (evt) => evt.preventDefault(), { once: true });
+      }
     }
 
     #setSwipeCoords(evt, x, y) {
@@ -140,7 +146,7 @@ export default class Slider {
 
     #setButtonsVisibilityClass() {
       [this.#button.prev, this.#button.next]
-        .forEach((button) => button.classList.add(this.#shownButton));
+        .forEach((button) => button.classList.add(this.#SliderClass.shownButton));
     }
 
     #setOnButtonsClick() {
@@ -174,14 +180,14 @@ export default class Slider {
 
     #updateButtonsState() {
       if (this.#currentSlideIndex === 0 || (this.#currentSlideIndex !== 0
-        && this.#button.prev.classList.contains(this.#disabledButton))) {
-        this.#button.prev.classList.toggle(this.#disabledButton);
+        && this.#button.prev.classList.contains(this.#SliderClass.disabledButton))) {
+        this.#button.prev.classList.toggle(this.#SliderClass.disabledButton);
       }
 
       if (this.#currentSlideIndex === this.#slides.length - 1
         || (this.#currentSlideIndex !== this.#slides.length - 1
-          && this.#button.next.classList.contains(this.#disabledButton))) {
-        this.#button.next.classList.toggle(this.#disabledButton);
+          && this.#button.next.classList.contains(this.#SliderClass.disabledButton))) {
+        this.#button.next.classList.toggle(this.#SliderClass.disabledButton);
       }
     }
 
