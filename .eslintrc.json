@@ -17,7 +17,7 @@
       "ignoreRegExpLiterals": true,
       "ignoreStrings": true,
       "ignoreTemplateLiterals": true
-    }],
+    }]
   },
   "settings": {
     "import/resolver": "webpack"
