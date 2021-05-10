@@ -8,8 +8,6 @@ export default class Slider {
       next: null,
     };
 
-    #paginationContainer = null;
-
     #sliderShift = 100;
 
     #currentSliderShift = 0;
@@ -39,7 +37,6 @@ export default class Slider {
       slidesContainer,
       buttonPrev,
       buttonNext,
-      paginationContainer,
     } = {}) {
       if (!slidesContainer) {
         throw new Error(`slidesContainer is ${slidesContainer}`);
@@ -50,8 +47,6 @@ export default class Slider {
 
       this.#button.prev = buttonPrev;
       this.#button.next = buttonNext;
-
-      this.#paginationContainer = paginationContainer;
     }
 
     init() {
@@ -98,7 +93,6 @@ export default class Slider {
 
       if (this.#SlidesSwipeState.isDetecting) {
         if (this.#isNeedBlockHorizontalScroll()) {
-          // moveEvt.preventDefault();
           this.#SlidesSwipeState.wasStarted = true;
         }
 
@@ -174,9 +168,8 @@ export default class Slider {
         return;
       }
 
-      this.#currentSlideIndex = nextItemIndex;
-      this.#currentSliderShift = this.#currentSlideIndex * -this.#sliderShift;
-
+      this.#setCurrentSlideIndex(nextItemIndex);
+      this.#updateCurrentSliderShift();
       this.#changeSlides();
       this.#updateButtonsState();
     }
@@ -185,6 +178,14 @@ export default class Slider {
       return ((nextItemIndex < 0 && this.#currentSlideIndex === 0)
         || (nextItemIndex >= this.#slides.length
           && this.#currentSlideIndex === this.#slides.length - 1));
+    }
+
+    #setCurrentSlideIndex(nextItemIndex) {
+      this.#currentSlideIndex = nextItemIndex;
+    }
+
+    #updateCurrentSliderShift() {
+      this.#currentSliderShift = this.#currentSlideIndex * -this.#sliderShift;
     }
 
     #changeSlides() {
