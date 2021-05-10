@@ -1,5 +1,6 @@
 # Slider
-Simple slider
+It will be simple lightweight slider library
+
 ## TODO:
 - add pagination;
 - add loop;
